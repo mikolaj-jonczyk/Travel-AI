@@ -1,39 +1,38 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>AI Travel Site</title>
-  <link rel="stylesheet" type="text/css" href="styles.css">
+  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Travel AI</title>
 </head>
 <body>
   <div class="container">
-    <h1>AI Travel Site</h1>
-    <form>
-        
-        <div class="input-container">
-            <label for="destination">Destination:</label>
-            <input type="text" id="destination" name="destination">
-          </div>
-
-      <div class="slider-container">
-        <span>Active</span>
-        <input type="range" id="activity" name="activity" min="0" max="1" step="0.25">
-        <span>Relax</span>
-      </div>
-
-      <div class="slider-container">
-        <span>Solo</span>
-        <input type="range" id="travel-type" name="travel-type" min="0" max="1" step="0.25">
-        <span>Group</span>
-      </div>
-
-      <div class="slider-container">
-        <span>Morning</span>
-        <input type="range" id="time-of-day" name="time-of-day" min="0" max="1" step="0.25">
-        <span>Evening</span>
-      </div>
-
-      <button type="submit">Search</button>
+    <h1>Welcome to Travel AI</h1>
+    <form class="search-form">
+      <input class="search-input" type="text" placeholder="Search for your destination...">
+      <button class="search-button" type="submit">Search</button>
     </form>
+    <div class="slider-form">
+      <div class="slider-container">
+        <label class="slider-label">Select your preferences:</label>
+        <div class="slider-range">
+          <span>Active</span>
+          <span>Relax</span>
+        </div>
+        <input class="slider" type="range" min="0" max="1" value="0.5" step="0.25">
+        <div class="slider-range">
+          <span>Solo</span>
+          <span>Group</span>
+        </div>
+        <input class="slider" type="range" min="0" max="1" value="0.5" step="0.25">
+
+        <div class="slider-range">
+          <span>Morning</span>
+          <span>Evening</span>
+        </div>
+        <input class="slider" type="range" min="0" max="1" value="0.5" step="0.25">
+      </div>
+    </div>
   </div>
 </body>
 </html>
