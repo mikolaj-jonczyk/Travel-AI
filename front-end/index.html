@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Travel Site</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>AI Travel Site</h1>
+    <form>
+      <div class="slider-container">
+        <span>Active</span>
+        <input type="range" id="activity" name="activity" min="0" max="1" step="0.25">
+        <span>Relax</span>
+      </div>
+
+      <div class="slider-container">
+        <span>Solo</span>
+        <input type="range" id="travel-type" name="travel-type" min="0" max="1" step="0.25">
+        <span>Group</span>
+      </div>
+
+      <div class="slider-container">
+        <span>Morning</span>
+        <input type="range" id="time-of-day" name="time-of-day" min="0" max="1" step="0.25">
+        <span>Evening</span>
+      </div>
+
+      <button type="submit">Search</button>
+    </form>
+  </div>
+</body>
+</html>
