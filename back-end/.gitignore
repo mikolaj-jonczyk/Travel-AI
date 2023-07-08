@@ -1,0 +1,5 @@
+.idea
+__pycache__
+app/.DS_Store
+app/service_account.json
+app/secrets.json
