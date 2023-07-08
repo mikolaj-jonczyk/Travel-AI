@@ -23,13 +23,32 @@ form {
   display: flex;
   align-items: center;
   margin-bottom: 20px;
-  width: 300px; /* Set a fixed width for all slider containers */
+  width: 300px;
 }
 
 input[type="range"] {
-  cursor: pointer;
-  flex: 1; /* Distribute remaining space equally among sliders */
+  flex: 1;
   margin: 0 10px;
+  cursor: pointer;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+label {
+  font-weight: bold;
+  color: #333;
+}
+
+input[type="text"] {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 300px;
 }
 
 button {
