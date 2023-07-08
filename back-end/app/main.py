@@ -14,6 +14,12 @@ with open(
 ) as f:  # replace 'serviceAccount.json' with the path to your file if necessary
     service_account_info = json.load(f)
 
+with open(
+    "secrets.json"
+) as f:  # replace 'serviceAccount.json' with the path to your file if necessary
+    secrets = json.load(f)
+api_key = secrets["google_maps_api_key"]
+
 my_credentials = service_account.Credentials.from_service_account_info(
     service_account_info
 )
@@ -94,6 +100,37 @@ async def handle_chat(city: str):
     response = chat.send_message(city, **parameters)
     # Return the model's response
     coords = json.loads(response.text)
-    for place in coords["data"]:
-        print(f"{place['name']} in {city} Coordinates: {place['coordinates']['lat']}, {place['coordinates']['lon']}")
-    return {"response": response.text}
+
+    names = [f"{place['name']} in {city}" for place in coords["data"]][:1]
+
+    import requests
+    import googlemaps
+
+    maps_api = googlemaps.Client(key=api_key)
+
+    response_dict = {"data" :[]}
+    for name in names:
+        place_search = maps_api.find_place(
+                    {name},
+                    "textquery",
+                    fields=["place_id"],
+                    language='en-US',
+                )
+        
+        print(place_search)
+        place_id = place_search['candidates'][0]['place_id']
+        print(place_id)
+        url = f"https://maps.googleapis.com/maps/api/place/details/json?place_id={place_id}&fields=name&key={api_key}"
+        
+        payload={}
+        headers = {}
+        response = requests.request("GET", url, headers=headers, data=payload)
+
+        place_details = response.text
+        place_dict = json.loads(place_details)["result"]
+        response_dict["data"].append(place_dict)
+        response_json = json.dumps(response_dict)
+        print(place_dict)
+
+    return {"response": response_json}
+
