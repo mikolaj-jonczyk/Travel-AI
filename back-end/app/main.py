@@ -77,7 +77,7 @@ async def get_documentation():
 
 
 @app.post("/chat")
-async def handle_chat(city: str, relax_value: int = None, group_value: int = None, daytime_value: int = None):
+async def handle_chat(city: str, active_value: int = 0, group_value: int = None, daytime_value: int = None):
     """
     Endpoint to handle chat.
     Receives a message from the user, processes it, and returns a response from the model.
@@ -96,9 +96,7 @@ async def handle_chat(city: str, relax_value: int = None, group_value: int = Non
         100: "full active"
     }
     chat = chat_model.start_chat(
-        context="Imagine you're a tour guide, that recommends at least 5 attractions for cities specified by user."
-                " Respond with only json containing list of attractions in following format: "
-                "{data: [{name: name}]}"
+        context="Imagine you're a tour guide, that recommends at least 8 specific attractions for city specified by user."
     )
     parameters = {
         "temperature": 0.8,
@@ -108,7 +106,10 @@ async def handle_chat(city: str, relax_value: int = None, group_value: int = Non
     }
 
 
-    message = f"I'm planning vacations in {city}, can you give me some tour recommendations."
+    city_prompt = f"I'm planning vacations in {city}, can you give me some tour recommendations in this city."
+    relax_prompt = f"{active_value}% of recommended attractions should be related to relaxing attraction and {100-active_value}% should be related to sports and recreation."
+    json_prompt = "Respond with only json containing list of attractions in following format: {data: [{name: name, category: [active, relaxed]}]}"
+    message = " ".join([city_prompt, relax_prompt, json_prompt])
     # Send the human message to the model and get a response
     response = chat.send_message(message, **parameters)
     # Return the model's response
@@ -145,5 +146,5 @@ async def handle_chat(city: str, relax_value: int = None, group_value: int = Non
     #     response_json = json.dumps(response_dict)
     #     print(place_dict)
 
-    return {"response": names}
+    return {"response": coords}
 
