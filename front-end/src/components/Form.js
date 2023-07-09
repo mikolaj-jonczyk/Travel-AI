@@ -68,7 +68,7 @@ const Form = () => {
       { data.length > 0 ? 
        data?.map(single =>
          <AttractionsItem>
-            <AttractionsImage>{single.picture}</AttractionsImage>
+            <AttractionsImage><img src={"http://localhost:8000/image/" + single.photo}></img></AttractionsImage>
             <AttractionsNameLocation><AttractionsName>{single.name}{single.location}</AttractionsName></AttractionsNameLocation>
             <AttractionsDescription>
               <h3>Description:</h3>
