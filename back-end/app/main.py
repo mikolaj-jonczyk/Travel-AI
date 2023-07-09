@@ -1,11 +1,24 @@
+import hashlib
+import json
+import logging
+import os
+
+import google.cloud.aiplatform as aiplatform
+import googlemaps
+import vertexai
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from google.oauth2 import service_account
-import google.cloud.aiplatform as aiplatform
 from vertexai.preview.language_models import ChatModel
-from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
-import vertexai
-import json  # add this line
+
+logger = logging.getLogger("main")
+ConsoleOutputHandler = logging.StreamHandler()
+
+logger.addHandler(ConsoleOutputHandler)
+
+USE_GOOGLE_API = False
+
 
 # Load the service account json file
 # Update the values in the json file with your own
@@ -75,29 +88,20 @@ async def get_documentation():
     return get_redoc_html(openapi_url="/openapi.json", title="redoc")
 
 
-
 @app.get("/chat")
-async def handle_chat(city: str, active_value: int = 0, group_value: int = 0, nature_value: int = 0):
+async def handle_chat(
+    city: str, active_value: int = 0, group_value: int = 0, nature_value: int = 0
+):
     """
     Endpoint to handle chat.
     Receives a message from the user, processes it, and returns a response from the model.
     """
-    chat_model = ChatModel.from_pretrained("chat-bison@001")
-    params = {
-        "relax" : 0,
-        "daytime": 0,
-        "number_of_people": 0
-    }
-    relax_dict = {
-        0: "a lot of relax",
-        25: "some relax",
-        50: "a little bit of relax and active",
-        75: "some active",
-        100: "full active"
-    }
-    chat = chat_model.start_chat(
-        context="Imagine you're a tour guide, that recommends at least 8 specific attractions for city specified by user."
-    )
+    relax_attractions = "Botanical Gardens, Art Museums, Rooftop Bars and Restaurants, Spa Retreats, Café Culture, Picnic Parks, Meditation Centers, River Cruises, Libraries, Wellness Retreats, Monuments, Historical Sites"
+    active_attractions = "active recreation, outdoor activities and doing sports"
+    city_prompt = f"I'm planning vacations in {city}, can you give me some tour recommendations within 100 km from {city}."
+    relax_prompt = f"{100-active_value}% of recommended attractions should be related to {relax_attractions} which are relaxed and {active_value}% should be related to {active_attractions} which are active and not related to any of the {relax_attractions} and sightseeing."
+    json_prompt = "Respond with json compliant with RFC7159 containing list of attractions in following format: {data: [{name: name, location: [city|area], category: [active|relaxed], description: description}]}"
+
     parameters = {
         "temperature": 0.8,
         "max_output_tokens": 1024,
@@ -105,46 +109,63 @@ async def handle_chat(city: str, active_value: int = 0, group_value: int = 0, na
         "top_k": 40,
     }
 
-
-    city_prompt = f"I'm planning vacations in {city}, can you give me some tour recommendations in this city."
-    relax_prompt = f"{active_value}% of recommended attractions should be related to relaxing attraction and {100-active_value}% should be related to sports and recreation."
-    json_prompt = "Respond with only json containing list of attractions in following format: {data: [{name: name, category: [active, relaxed]}]}"
     message = " ".join([city_prompt, relax_prompt, json_prompt])
-    # Send the human message to the model and get a response
-    response = chat.send_message(message, **parameters)
-    # Return the model's response
-    coords = json.loads(response.text)
 
-    names = [f"{place['name']} in {city}" for place in coords["data"]]
+    while True:
+        chat_model = ChatModel.from_pretrained("chat-bison@001")
+        chat = chat_model.start_chat(context="Imagine you're a tour guide.")
+        response = chat.send_message(message, **parameters)
 
-    # import requests
-    # import googlemaps
-    #
-    # maps_api = googlemaps.Client(key=api_key)
-    #
-    # response_dict = {"data" :[]}
-    # for name in names:
-    #     place_search = maps_api.find_place(
-    #                 {name},
-    #                 "textquery",
-    #                 fields=["place_id"],
-    #                 language='en-US',
-    #             )
-    #
-    #     print(place_search)
-    #     place_id = place_search['candidates'][0]['place_id']
-    #     print(place_id)
-    #     url = f"https://maps.googleapis.com/maps/api/place/details/json?place_id={place_id}&fields=name&key={api_key}"
-    #
-    #     payload={}
-    #     headers = {}
-    #     response = requests.request("GET", url, headers=headers, data=payload)
-    #
-    #     place_details = response.text
-    #     place_dict = json.loads(place_details)["result"]
-    #     response_dict["data"].append(place_dict)
-    #     response_json = json.dumps(response_dict)
-    #     print(place_dict)
+        try:
+            response_dict = json.loads(response.text)
+        except Exception as _:
+            logger.warning("There was an error parsing json from vertex, retrying...")
+        else:
+            break
 
-    return {"response": coords}
+
+    if USE_GOOGLE_API:
+        maps_api = googlemaps.Client(key=api_key)
+        assert "data" in response_dict
+
+        for place in response_dict["data"]:
+            place_search = maps_api.find_place(
+                f"{place['name']}",
+                "textquery",
+                fields=["place_id"],
+                language="en-US",
+            )
+
+            place_id = place_search["candidates"][0]["place_id"]
+            fields = ["name", "photo"]
+            place_details = maps_api.place(place_id, fields=fields)["result"]
+            place["name"] = place_details["name"]
+            place["photo_reference"] = (
+                place_details["photos"][0]["photo_reference"]
+                if place_details["photos"]
+                else ""
+            )
+
+        for place in response_dict["data"]:
+            existing_photos = os.listdir("photos")
+            photo_file_name = hashlib.md5(place["name"].encode("utf-8")).hexdigest()
+            if photo_file_name not in existing_photos:
+                if place.get("photo_reference", None):
+                    with open(os.path.join("photos", f"{photo_file_name}"), "wb") as f:
+                        for chunk in maps_api.places_photo(
+                            place["photo_reference"], max_width=1600, max_height=1600
+                        ):
+                            if chunk:
+                                f.write(chunk)
+                    place["photo"] = photo_file_name
+                else:
+                    place["photo"] = ""
+            else:
+                logger.warning(f"File for place {place['name']} already exists.")
+
+
+    from example import example_response
+    return example_response
+
+
 
