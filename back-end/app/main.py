@@ -54,7 +54,7 @@ vertexai.init(project=project_id, location="us-central1")
 app = FastAPI()
 
 # Configure CORS for the application
-origins = ["http://localhost(.*)"]
+origins = ["http://localhost(.*)", "http://localhost:8000"]
 origin_regex = r"https://(.*\.)?alexsystems\.ai"
 app.add_middleware(
     CORSMiddleware,
@@ -123,7 +123,6 @@ async def handle_chat(
         else:
             break
 
-
     if USE_GOOGLE_API:
         maps_api = googlemaps.Client(key=api_key)
         assert "data" in response_dict
@@ -166,6 +165,3 @@ async def handle_chat(
 
     from example import example_response
     return example_response
-
-
-

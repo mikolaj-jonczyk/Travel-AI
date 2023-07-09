@@ -1,8 +1,10 @@
 import { FormContainer, SearchButton, SearchForm, SearchInput, SliderLabel, Title } from "./container-styles/styles";
-import { Slider } from './Slider';
+import { AttractionsContainer } from './container-styles/attractions-styles'
+import { Slider } from './Slider'
 import axios from 'axios';
 import { useState } from 'react';
 import { RingLoader } from 'react-spinners'; // Import the RingLoader component from react-spinners
+
 
 const Form = () => {
   const [data, setData] = useState({});
@@ -28,8 +30,8 @@ const Form = () => {
           nature_value
         },
       });
-      console.log(response.data);
-      setData(response.data);
+      console.log(response.data.data);
+      setData(response.data.data);
       console.log(data);
     } catch (error) {
       console.error(error);
@@ -55,7 +57,10 @@ const Form = () => {
         <Slider slider_value="group_value" left="Solo" right="Group" />
         <Slider slider_value="nature_value" left="Nature" right="Building" />
       </SearchForm>
-      {Object.keys(data).length ? <div>rendered</div> : null}
+      { data.length > 0 ? 
+       data?.map(single => <AttractionsContainer>{single.name}</AttractionsContainer>)
+        :
+        null }
     </FormContainer>
   );
 };
