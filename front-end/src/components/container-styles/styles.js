@@ -5,12 +5,12 @@ const FormContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 40vh;
   background-color: #f2f2f2;
 `
 
 const SearchForm = styled.form`
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   margin-bottom: 20px;

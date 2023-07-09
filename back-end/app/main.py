@@ -49,11 +49,11 @@ vertexai.init(project=project_id, location="us-central1")
 app = FastAPI()
 
 # Configure CORS for the application
-origins = ["http://localhost", "http://localhost:8080", "http://localhost:3000"]
-origin_regex = r"http://localhost(.*)"
+origins = ["http://localhost(.*)"]
+origin_regex = r"https://(.*\.)?alexsystems\.ai"
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_origin_regex=origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
