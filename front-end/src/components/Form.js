@@ -61,7 +61,7 @@ const Form = () => {
             'Search'
           )}
         </SearchButton>
-        <SliderLabel>Select your preferences:</SliderLabel>
+        <SliderLabel>Select your preferences! Based on them we will show you different attractions to visit!</SliderLabel>
         <Slider slider_value="active_value" left="Active" right="Relaxed" />
         <Slider slider_value="group_value" left="Solo" right="Group" />
         <Slider slider_value="nature_value" left="Nature" right="Urban" />

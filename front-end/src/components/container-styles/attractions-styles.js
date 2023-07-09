@@ -34,7 +34,8 @@ const AttractionsItem = styled.div`
   const AttractionsDescription = styled.div`
   grid-area: 2 / 1 / 3 / 3;
   font-size: 1rem;
-  padding: 0.7rem;
+  margin-bottom: 0.1rem;
+  margin: 0.7rem;
   `
 
   const AttractionsNameLocation = styled.div`
@@ -57,7 +58,7 @@ const Image = styled.img`
   width:100%;
   height:100%;
   max-width:300px;
-  max-height: 300px;
+  max-height: 200px;
   border: 2px solid;
   border-radius: 15px;
   border-color: #f2f2f2;

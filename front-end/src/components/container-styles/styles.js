@@ -28,7 +28,7 @@ const SearchButton = styled.button`
   cursor: pointer;
   margin-left: 10px;
   margin-bottom: 10px;
-  margin-top: 10px;
+  margin-top: 20px;
   outline: none;
 
   &:hover {
@@ -56,9 +56,10 @@ const SliderContainer = styled.div`
 `
 
 const SliderLabel = styled.label`
+  max-width: 300px;
   font-size: 16px;
   font-weight: bold;
-  margin-bottom: 20px;
+  margin: 3rem;
 `
 const SliderRange = styled.div`
   display: flex;
@@ -78,8 +79,9 @@ const SliderInput = styled.input`
 
 
 const Title = styled.h1`
-  font-size: 2rem;
+  font-size: 4rem;
   font-family: 'Caprasimo', cursive;
+  margin: 4rem
 `
 
 export {
