@@ -1,16 +1,18 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from google.oauth2 import service_account
-import google.cloud.aiplatform as aiplatform
-from vertexai.preview.language_models import ChatModel
-from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
-import vertexai
-import json  # add this line
+import hashlib
+import json
 import logging
 import os
-import hashlib
 
-logger = logging.getLogger("nameOfTheLogger")
+import google.cloud.aiplatform as aiplatform
+import googlemaps
+import vertexai
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
+from google.oauth2 import service_account
+from vertexai.preview.language_models import ChatModel
+
+logger = logging.getLogger("main")
 ConsoleOutputHandler = logging.StreamHandler()
 
 logger.addHandler(ConsoleOutputHandler)
@@ -83,9 +85,10 @@ async def get_documentation():
     return get_redoc_html(openapi_url="/openapi.json", title="redoc")
 
 
-
 @app.get("/chat")
-async def handle_chat(city: str, active_value: int = 0, group_value: int = 0, nature_value: int = 0):
+async def handle_chat(
+    city: str, active_value: int = 0, group_value: int = 0, nature_value: int = 0
+):
     """
     Endpoint to handle chat.
     Receives a message from the user, processes it, and returns a response from the model.
@@ -103,59 +106,57 @@ async def handle_chat(city: str, active_value: int = 0, group_value: int = 0, na
         "top_k": 40,
     }
 
-
-
     message = " ".join([city_prompt, relax_prompt, json_prompt])
 
     while True:
         chat_model = ChatModel.from_pretrained("chat-bison@001")
-        chat = chat_model.start_chat(
-            context="Imagine you're a tour guide."
-        )
+        chat = chat_model.start_chat(context="Imagine you're a tour guide.")
         response = chat.send_message(message, **parameters)
 
         try:
             response_dict = json.loads(response.text)
         except Exception as _:
-            logger.warning(
-                "There was an error parsing json from vertex, retrying..."
-            )
+            logger.warning("There was an error parsing json from vertex, retrying...")
         else:
             break
-
-
-    import googlemaps
 
     maps_api = googlemaps.Client(key=api_key)
     assert "data" in response_dict
 
-    # for place in response_dict["data"]:
-    #     print(place["name"])
-    #     place_search = maps_api.find_place(
-    #                 f"{place['name']}",
-    #                 "textquery",
-    #                 fields=["place_id"],
-    #                 language='en-US',
-    #             )
-    #
-    #     print(place_search)
-    #     place_id = place_search['candidates'][0]['place_id']
-    #     print(place_id)
-    #     fields = [
-    #         "name",
-    #         "photo"
-    #     ]
-    #     place_details = maps_api.place(
-    #         place_id,
-    #         fields=fields
-    #     )["result"]
-    #     place["google_name"] = place_details["name"]
-    #     place["google_photo"] = place_details["photos"][0]["photo_reference"] if place_details["photos"] else ""
-    #     break
+    for place in response_dict["data"]:
+        place_search = maps_api.find_place(
+            f"{place['name']}",
+            "textquery",
+            fields=["place_id"],
+            language="en-US",
+        )
+
+        place_id = place_search["candidates"][0]["place_id"]
+        fields = ["name", "photo"]
+        place_details = maps_api.place(place_id, fields=fields)["result"]
+        place["name"] = place_details["name"]
+        place["photo_reference"] = (
+            place_details["photos"][0]["photo_reference"]
+            if place_details["photos"]
+            else ""
+        )
+        break
 
     for place in response_dict["data"]:
-        photo_file_name = hashlib.md5(place['name'].encode('utf-8')).hexdigest()
-        with open(os.path.join("photos", f"{photo_file_name}"), "w") as f:
-            place["photo"] = photo_file_name
+        existing_photos = os.listdir("photos")
+        photo_file_name = hashlib.md5(place["name"].encode("utf-8")).hexdigest()
+        if photo_file_name not in existing_photos:
+            if place.get("photo_reference", None):
+                with open(os.path.join("photos", f"{photo_file_name}"), "wb") as f:
+                    for chunk in maps_api.places_photo(
+                        place["photo_reference"], max_width=1600, max_height=1600
+                    ):
+                        if chunk:
+                            f.write(chunk)
+                place["photo"] = photo_file_name
+            else:
+                place["photo"] = ""
+        else:
+            logger.warning(f"File for place {place['name']} already exists.")
 
     return response_dict
