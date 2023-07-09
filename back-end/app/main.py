@@ -9,6 +9,7 @@ import vertexai
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
+from fastapi.responses import FileResponse
 from google.oauth2 import service_account
 from vertexai.preview.language_models import ChatModel
 
@@ -111,17 +112,17 @@ async def handle_chat(
 
     message = " ".join([city_prompt, relax_prompt, json_prompt])
 
-    while True:
-        chat_model = ChatModel.from_pretrained("chat-bison@001")
-        chat = chat_model.start_chat(context="Imagine you're a tour guide.")
-        response = chat.send_message(message, **parameters)
-
-        try:
-            response_dict = json.loads(response.text)
-        except Exception as _:
-            logger.warning("There was an error parsing json from vertex, retrying...")
-        else:
-            break
+    # while True:
+    #     chat_model = ChatModel.from_pretrained("chat-bison@001")
+    #     chat = chat_model.start_chat(context="Imagine you're a tour guide.")
+    #     response = chat.send_message(message, **parameters)
+    #
+    #     try:
+    #         response_dict = json.loads(response.text)
+    #     except Exception as _:
+    #         logger.warning("There was an error parsing json from vertex, retrying...")
+    #     else:
+    #         break
 
     if USE_GOOGLE_API:
         maps_api = googlemaps.Client(key=api_key)
@@ -162,6 +163,16 @@ async def handle_chat(
             else:
                 logger.warning(f"File for place {place['name']} already exists.")
 
-
     from example import example_response
+
     return example_response
+
+
+@app.get("/image/")
+async def read_random_file(file_name: str = None):
+    files = os.listdir("photos")
+    if file_name not in files:
+        return "File not found"
+
+    path = os.path.join(".", "photos", file_name)
+    return FileResponse(path, media_type="image/png")
