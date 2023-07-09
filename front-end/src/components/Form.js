@@ -3,8 +3,10 @@ import {
   AttractionsDescription,
   AttractionsImage,
   AttractionsItem,
+  AttractionsLocationText,
   AttractionsName,
-  AttractionsNameLocation
+  AttractionsNameLocation,
+  Image
 } from './container-styles/attractions-styles'
 import { FormContainer, SearchButton, SearchForm, SearchInput, SliderLabel, Title } from "./container-styles/styles";
 
@@ -68,8 +70,11 @@ const Form = () => {
       { data.length > 0 ? 
        data?.map(single =>
          <AttractionsItem>
-            <AttractionsImage><img src={"http://localhost:8000/image/" + single.photo}></img></AttractionsImage>
-            <AttractionsNameLocation><AttractionsName>{single.name}{single.location}</AttractionsName></AttractionsNameLocation>
+            <AttractionsImage><Image src={"http://localhost:8000/image/?file_name=" + single.photo}></Image></AttractionsImage>
+            <AttractionsNameLocation>
+              <AttractionsName>{single.name}</AttractionsName>
+              <AttractionsLocationText>Location: {single.location}</AttractionsLocationText>
+            </AttractionsNameLocation>
             <AttractionsDescription>
               <h3>Description:</h3>
               {single.description}

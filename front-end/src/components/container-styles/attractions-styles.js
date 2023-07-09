@@ -2,7 +2,7 @@ import styled from "styled-components"
 
 const AttractionsItem = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(2, 1fr);
   grid-column-gap: 0px;
   grid-row-gap: 0px; 
@@ -12,9 +12,11 @@ const AttractionsItem = styled.div`
   border-radius: 15px;
   border-color: #3C372C;
   margin: 5px;
+  color: #3C372C;
   `
 
  const AttractionsContainer = styled.div`
+  margin-top: 100px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -30,15 +32,15 @@ const AttractionsItem = styled.div`
   `
 
   const AttractionsDescription = styled.div`
-  grid-area: 2 / 1 / 3 / 4;
+  grid-area: 2 / 1 / 3 / 3;
   font-size: 1rem;
-  margin: 0.2rem;
+  padding: 0.7rem;
   `
 
   const AttractionsNameLocation = styled.div`
-  grid-area: 1 / 2 / 2 / 4;
+  grid-area: 1 / 2 / 2 / 3;
   font-size: 1.6rem;
-  margin: 0.2rem;
+  margin: 0.1rem;
 `
   
 const AttractionsImage = styled.div`
@@ -46,12 +48,29 @@ const AttractionsImage = styled.div`
   margin: 0.2rem;
   `
 
+  const AttractionsLocationText = styled.h4`
+  margin: 0.8rem;
+  font-size: 1rem;
+  `
+
+const Image = styled.img`
+  width:100%;
+  height:100%;
+  max-width:300px;
+  max-height: 300px;
+  border: 2px solid;
+  border-radius: 15px;
+  border-color: #f2f2f2;
+`
+
 
   export {
     AttractionsItem,
     AttractionsContainer,
     AttractionsName,
+    AttractionsLocationText,
     AttractionsDescription,
     AttractionsImage,
-    AttractionsNameLocation
+    AttractionsNameLocation,
+    Image
   } 

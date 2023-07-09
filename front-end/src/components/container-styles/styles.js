@@ -79,7 +79,7 @@ const SliderInput = styled.input`
 
 const Title = styled.h1`
   font-size: 2rem;
-  font-family: font-family: 'Caprasimo', cursive;
+  font-family: 'Caprasimo', cursive;
 `
 
 export {
