@@ -1,5 +1,6 @@
 import { FormContainer, SearchButton, SearchForm, SearchInput, SliderLabel, Title } from "./container-styles/styles";
 
+import { Attractions } from "./Attrctions";
 import { Slider } from './Slider'
 import axios from 'axios';
 import { useState } from 'react'
@@ -27,8 +28,10 @@ const Form = () => {
           nature_value
         },
       });
-      console.log(response.data);
-      setData(response.data);
+      console.log(response);
+      console.log(response.data.response.data);
+      console.log(response.data[0]);
+      setData(Array.from(response.data.response.data));
       console.log(data);
     } catch (error) {
       console.error(error);
@@ -46,8 +49,9 @@ const Form = () => {
         <Slider slider_value="group_value" left="Solo" right="Group"></Slider>
         <Slider slider_value="nature_value" left="Nature" right="Building"></Slider>
       </SearchForm>
-      { Object.keys(data).length ?  <div>rendered</div> : null }
+      { Object.keys(data).length ? <Attractions data={data}></Attractions> : null }
     </FormContainer>
+    //<Attractions data={data}></Attractions>
   );
 }
 
