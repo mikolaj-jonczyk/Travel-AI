@@ -5,7 +5,7 @@ const FormContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #f2f2f2;
+  background-color: #EFEDE3;
 `
 
 const SearchForm = styled.form`
@@ -18,15 +18,21 @@ const SearchForm = styled.form`
 
 const SearchButton = styled.button`
   padding: 10px 20px;
-  background-color: #4CAF50;
+  background-color: #3C372C;
   border: none;
   border-radius: 4px;
   color: white;
   font-size: 16px;
   cursor: pointer;
   margin-left: 10px;
+  margin-bottom: 10px;
+  margin-top: 10px;
   outline: none;
-`
+
+  &:hover {
+    background-color: #594833; /* New background color on hover */
+  }
+`;
 
 const SearchInput = styled.input`
   padding: 10px;
@@ -63,7 +69,7 @@ const SliderInput = styled.input`
   width: 100%;
   height: 5px;
   border-radius: 5px;
-  background: #4CAF50;
+  background: #3C372C;
   outline: none;
   cursor: grab;  
 `
