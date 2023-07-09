@@ -1,19 +1,19 @@
 import { FormContainer, SearchButton, SearchForm, SearchInput, SliderLabel, Title } from "./container-styles/styles";
 
-import { Attractions } from "./Attrctions";
+import { AttractionsContainer } from './container-styles/attractions-styles'
 import { Slider } from './Slider'
 import axios from 'axios';
 import { useState } from 'react'
 
-const Form = () => {
+function Form() {
 
-  const [data, setData] = useState({});
+  const [data, setData] = useState([]);
+
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const be_url = 'http://localhost:8000/chat'
     const formData = new FormData(event.target);
-  
     const city = formData.get('city').toString();
     const active_value = parseInt(formData.get('active_value'));
     const group_value = parseInt(formData.get('group_value'));
@@ -28,10 +28,8 @@ const Form = () => {
           nature_value
         },
       });
-      console.log(response);
-      console.log(response.data.response.data);
-      console.log(response.data[0]);
-      setData(Array.from(response.data.response.data));
+      console.log(response.data.data);
+      setData(response.data.data);
       console.log(data);
     } catch (error) {
       console.error(error);
@@ -49,9 +47,11 @@ const Form = () => {
         <Slider slider_value="group_value" left="Solo" right="Group"></Slider>
         <Slider slider_value="nature_value" left="Nature" right="Building"></Slider>
       </SearchForm>
-      { Object.keys(data).length ? <Attractions data={data}></Attractions> : null }
+      { data.length > 0 ? 
+       data?.map(single => <AttractionsContainer>{single.name}</AttractionsContainer>)
+        :
+        null }
     </FormContainer>
-    //<Attractions data={data}></Attractions>
   );
 }
 
