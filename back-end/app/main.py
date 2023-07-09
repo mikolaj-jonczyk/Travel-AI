@@ -17,6 +17,9 @@ ConsoleOutputHandler = logging.StreamHandler()
 
 logger.addHandler(ConsoleOutputHandler)
 
+USE_GOOGLE_API = False
+
+
 # Load the service account json file
 # Update the values in the json file with your own
 with open(
@@ -120,43 +123,49 @@ async def handle_chat(
         else:
             break
 
-    maps_api = googlemaps.Client(key=api_key)
-    assert "data" in response_dict
 
-    for place in response_dict["data"]:
-        place_search = maps_api.find_place(
-            f"{place['name']}",
-            "textquery",
-            fields=["place_id"],
-            language="en-US",
-        )
+    if USE_GOOGLE_API:
+        maps_api = googlemaps.Client(key=api_key)
+        assert "data" in response_dict
 
-        place_id = place_search["candidates"][0]["place_id"]
-        fields = ["name", "photo"]
-        place_details = maps_api.place(place_id, fields=fields)["result"]
-        place["name"] = place_details["name"]
-        place["photo_reference"] = (
-            place_details["photos"][0]["photo_reference"]
-            if place_details["photos"]
-            else ""
-        )
-        break
+        for place in response_dict["data"]:
+            place_search = maps_api.find_place(
+                f"{place['name']}",
+                "textquery",
+                fields=["place_id"],
+                language="en-US",
+            )
 
-    for place in response_dict["data"]:
-        existing_photos = os.listdir("photos")
-        photo_file_name = hashlib.md5(place["name"].encode("utf-8")).hexdigest()
-        if photo_file_name not in existing_photos:
-            if place.get("photo_reference", None):
-                with open(os.path.join("photos", f"{photo_file_name}"), "wb") as f:
-                    for chunk in maps_api.places_photo(
-                        place["photo_reference"], max_width=1600, max_height=1600
-                    ):
-                        if chunk:
-                            f.write(chunk)
-                place["photo"] = photo_file_name
+            place_id = place_search["candidates"][0]["place_id"]
+            fields = ["name", "photo"]
+            place_details = maps_api.place(place_id, fields=fields)["result"]
+            place["name"] = place_details["name"]
+            place["photo_reference"] = (
+                place_details["photos"][0]["photo_reference"]
+                if place_details["photos"]
+                else ""
+            )
+
+        for place in response_dict["data"]:
+            existing_photos = os.listdir("photos")
+            photo_file_name = hashlib.md5(place["name"].encode("utf-8")).hexdigest()
+            if photo_file_name not in existing_photos:
+                if place.get("photo_reference", None):
+                    with open(os.path.join("photos", f"{photo_file_name}"), "wb") as f:
+                        for chunk in maps_api.places_photo(
+                            place["photo_reference"], max_width=1600, max_height=1600
+                        ):
+                            if chunk:
+                                f.write(chunk)
+                    place["photo"] = photo_file_name
+                else:
+                    place["photo"] = ""
             else:
-                place["photo"] = ""
-        else:
-            logger.warning(f"File for place {place['name']} already exists.")
+                logger.warning(f"File for place {place['name']} already exists.")
 
-    return response_dict
+
+    from example import example_response
+    return example_response
+
+
+
