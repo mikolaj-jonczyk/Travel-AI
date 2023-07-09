@@ -18,10 +18,10 @@ import { useState } from 'react';
 const Form = () => {
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(false);
+  const be_url = 'http://localhost:8000';
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const be_url = 'http://localhost:8000/chat';
     const formData = new FormData(event.target);
 
     const city = formData.get('city').toString();
@@ -31,7 +31,7 @@ const Form = () => {
 
     try {
       setLoading(true);
-      const response = await axios.get(be_url, {
+      const response = await axios.get(be_url + "/places", {
         params: {
           city,
           active_value,
@@ -64,13 +64,13 @@ const Form = () => {
         <SliderLabel>Select your preferences:</SliderLabel>
         <Slider slider_value="active_value" left="Active" right="Relaxed" />
         <Slider slider_value="group_value" left="Solo" right="Group" />
-        <Slider slider_value="nature_value" left="Nature" right="Building" />
+        <Slider slider_value="nature_value" left="Nature" right="Urban" />
       </SearchForm>
       <AttractionsContainer>
       { data.length > 0 ? 
        data?.map(single =>
          <AttractionsItem>
-            <AttractionsImage><Image src={"http://localhost:8000/image/?file_name=" + single.photo}></Image></AttractionsImage>
+            <AttractionsImage><Image src={be_url + "/image/?file_name=" + single.photo}></Image></AttractionsImage>
             <AttractionsNameLocation>
               <AttractionsName>{single.name}</AttractionsName>
               <AttractionsLocationText>Location: {single.location}</AttractionsLocationText>

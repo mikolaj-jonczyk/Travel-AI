@@ -13,12 +13,14 @@ from fastapi.responses import FileResponse
 from google.oauth2 import service_account
 from vertexai.preview.language_models import ChatModel
 
+from example import example_response
+
 logger = logging.getLogger("main")
 ConsoleOutputHandler = logging.StreamHandler()
 
 logger.addHandler(ConsoleOutputHandler)
 
-USE_GOOGLE_API = False
+DEBUG_MODE = True
 
 
 # Load the service account json file
@@ -89,8 +91,8 @@ async def get_documentation():
     return get_redoc_html(openapi_url="/openapi.json", title="redoc")
 
 
-@app.get("/chat")
-async def handle_chat(
+@app.get("/places")
+async def get_places_data(
     city: str, active_value: int = 0, group_value: int = 0, nature_value: int = 0
 ):
     """
@@ -112,19 +114,24 @@ async def handle_chat(
 
     message = " ".join([city_prompt, relax_prompt, json_prompt])
 
-    # while True:
-    #     chat_model = ChatModel.from_pretrained("chat-bison@001")
-    #     chat = chat_model.start_chat(context="Imagine you're a tour guide.")
-    #     response = chat.send_message(message, **parameters)
-    #
-    #     try:
-    #         response_dict = json.loads(response.text)
-    #     except Exception as _:
-    #         logger.warning("There was an error parsing json from vertex, retrying...")
-    #     else:
-    #         break
+    # Don't use vertexai and google maps api for faster prototyping
+    if not DEBUG_MODE:
+        while True:
+            # In some cases vertexai doesn't return json compliant with RFC7159
+            # that's used by python. In these cases just send the request again.
+            chat_model = ChatModel.from_pretrained("chat-bison@001")
+            chat = chat_model.start_chat(context="Imagine you're a tour guide.")
+            response = chat.send_message(message, **parameters)
 
-    if USE_GOOGLE_API:
+            try:
+                response_dict = json.loads(response.text)
+            except Exception as _:
+                logger.warning(
+                    "There was an error parsing json from vertex, retrying..."
+                )
+            else:
+                break
+
         maps_api = googlemaps.Client(key=api_key)
         assert "data" in response_dict
 
@@ -162,14 +169,14 @@ async def handle_chat(
                     place["photo"] = ""
             else:
                 logger.warning(f"File for place {place['name']} already exists.")
-
-    from example import example_response
-
-    return example_response
+            response_dict.pop("photo_reference", None)
+        return response_dict
+    else:
+        return example_response
 
 
 @app.get("/image/")
-async def read_random_file(file_name: str = None):
+async def get_image(file_name: str = None):
     files = os.listdir("photos")
     if file_name not in files:
         return "File not found"
