@@ -1,5 +1,6 @@
-import styled from "styled-components"
 import "typeface-roboto";
+
+import styled from "styled-components"
 
 const FormContainer = styled.div`
   display: flex;
@@ -7,7 +8,6 @@ const FormContainer = styled.div`
   align-items: center;
   justify-content: center;
   background-color: #efede3;
-  font-family: "Roboto", sans-serif;
 `
 
 const SearchForm = styled.form`
@@ -16,7 +16,6 @@ const SearchForm = styled.form`
   align-items: center;
   justify-content: center;
   margin-bottom: 20px;
-  font-family: "Roboto", sans-serif; 
 `
 
 const SearchButton = styled.button`
@@ -31,7 +30,6 @@ const SearchButton = styled.button`
   margin-bottom: 10px;
   margin-top: 10px;
   outline: none;
-  font-family: "Roboto", sans-serif;
 
   &:hover {
     background-color: #594833; /* New background color on hover */
@@ -45,32 +43,27 @@ const SearchInput = styled.input`
   width: 400px;
   font-size: 16px;
   outline: none;
-  font-family: "Roboto", sans-serif;
 `
 
 const SliderDiv = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "Roboto", sans-serif;
 `
 const SliderContainer = styled.div`
   width: 500px;
   margin-top: 20px;
-  font-family: "Roboto", sans-serif;
 `
 
 const SliderLabel = styled.label`
   font-size: 16px;
   font-weight: bold;
   margin-bottom: 20px;
-  font-family: "Roboto", sans-serif;
 `
 const SliderRange = styled.div`
   display: flex;
   justify-content: space-between;
   margin-bottom: 10px;
-  font-family: "Roboto", sans-serif; 
 `
 
 const SliderInput = styled.input`
@@ -81,14 +74,12 @@ const SliderInput = styled.input`
   background: #3C372C;
   outline: none;
   cursor: grab;  
-  font-family: "Roboto", sans-serif; 
 `
 
 
 const Title = styled.h1`
   font-size: 2rem;
-  font-family: "Roboto", sans-serif;
-
+  font-family: font-family: 'Caprasimo', cursive;
 `
 
 export {

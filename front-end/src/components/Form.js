@@ -1,10 +1,17 @@
+import {
+  AttractionsContainer,
+  AttractionsDescription,
+  AttractionsImage,
+  AttractionsItem,
+  AttractionsName,
+  AttractionsNameLocation
+} from './container-styles/attractions-styles'
 import { FormContainer, SearchButton, SearchForm, SearchInput, SliderLabel, Title } from "./container-styles/styles";
-import { AttractionsContainer } from './container-styles/attractions-styles'
+
+import { RingLoader } from 'react-spinners'; // Import the RingLoader component from react-spinners
 import { Slider } from './Slider'
 import axios from 'axios';
 import { useState } from 'react';
-import { RingLoader } from 'react-spinners'; // Import the RingLoader component from react-spinners
-
 
 const Form = () => {
   const [data, setData] = useState({});
@@ -57,10 +64,20 @@ const Form = () => {
         <Slider slider_value="group_value" left="Solo" right="Group" />
         <Slider slider_value="nature_value" left="Nature" right="Building" />
       </SearchForm>
+      <AttractionsContainer>
       { data.length > 0 ? 
-       data?.map(single => <AttractionsContainer>{single.name}</AttractionsContainer>)
-        :
-        null }
+       data?.map(single =>
+         <AttractionsItem>
+            <AttractionsImage><img src={"http://localhost:8000/image/" + single.photo}></img></AttractionsImage>
+            <AttractionsNameLocation><AttractionsName>{single.name}{single.location}</AttractionsName></AttractionsNameLocation>
+            <AttractionsDescription>
+              <h3>Description:</h3>
+              {single.description}
+            </AttractionsDescription>
+            
+          </AttractionsItem>)
+        : null }
+      </AttractionsContainer>
     </FormContainer>
   );
 };
