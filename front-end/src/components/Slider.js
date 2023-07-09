@@ -9,7 +9,7 @@ function Slider(props) {
           <span>{props.right}</span>
         </SliderRange>
 
-        <SliderInput type="range" id="travel-type" name="travel-type" min="0" max="1" step="0.25" />
+        <SliderInput type="range" name= {props.slider_value} min="0" max="100" step="25" />
       </SliderContainer>
     </SliderDiv>
   );
