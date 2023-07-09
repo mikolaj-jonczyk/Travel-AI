@@ -76,8 +76,8 @@ async def get_documentation():
 
 
 
-@app.post("/chat")
-async def handle_chat(city: str, active_value: int = 0, group_value: int = None, daytime_value: int = None):
+@app.get("/chat")
+async def handle_chat(city: str, active_value: int = 0, group_value: int = 0, nature_value: int = 0):
     """
     Endpoint to handle chat.
     Receives a message from the user, processes it, and returns a response from the model.
