@@ -20,7 +20,7 @@ ConsoleOutputHandler = logging.StreamHandler()
 
 logger.addHandler(ConsoleOutputHandler)
 
-DEBUG_MODE = True
+DEBUG_MODE = False
 
 
 # Load the service account json file
