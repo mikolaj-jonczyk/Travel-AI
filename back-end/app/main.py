@@ -103,6 +103,9 @@ async def get_places_data(
     active_attractions = "active recreation, outdoor activities and doing sports"
     city_prompt = f"I'm planning vacations in {city}, can you give me some tour recommendations within 100 km from {city}."
     relax_prompt = f"{100-active_value}% of recommended attractions should be related to {relax_attractions} which are relaxed and {active_value}% should be related to {active_attractions} which are active and not related to any of the {relax_attractions} and sightseeing."
+    # TODO: implement solo/group and nature/urban prompts
+    group_prompt = ""
+    nature_prompt = ""
     json_prompt = "Respond with json compliant with RFC7159 containing list of attractions in following format: {data: [{name: name, location: [city|area], category: [active|relaxed], description: description}]}"
 
     parameters = {
