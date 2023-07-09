@@ -77,14 +77,28 @@ async def get_documentation():
 
 
 @app.post("/chat")
-async def handle_chat(city: str):
+async def handle_chat(city: str, relax_value: int = None, group_value: int = None, daytime_value: int = None):
     """
     Endpoint to handle chat.
     Receives a message from the user, processes it, and returns a response from the model.
     """
     chat_model = ChatModel.from_pretrained("chat-bison@001")
-    chat = chat_model.start_chat(  
-        context="Imagine you're a tour guide, that recommends at least 5 attractions for cities specified by user. Respond with json containing list of attractions in following format: {data: [{name: name, coordinates: {lat: lattitude, lon: longitude}}]}"
+    params = {
+        "relax" : 0,
+        "daytime": 0,
+        "number_of_people": 0
+    }
+    relax_dict = {
+        0: "a lot of relax",
+        25: "some relax",
+        50: "a little bit of relax and active",
+        75: "some active",
+        100: "full active"
+    }
+    chat = chat_model.start_chat(
+        context="Imagine you're a tour guide, that recommends at least 5 attractions for cities specified by user."
+                " Respond with only json containing list of attractions in following format: "
+                "{data: [{name: name}]}"
     )
     parameters = {
         "temperature": 0.8,
@@ -94,43 +108,42 @@ async def handle_chat(city: str):
     }
 
 
-    context = ""
-    message = f"I'm planning vacations in {city}, can you give me some tour recommendations and give coordinates of these attractions in separate json"
+    message = f"I'm planning vacations in {city}, can you give me some tour recommendations."
     # Send the human message to the model and get a response
-    response = chat.send_message(city, **parameters)
+    response = chat.send_message(message, **parameters)
     # Return the model's response
     coords = json.loads(response.text)
 
-    names = [f"{place['name']} in {city}" for place in coords["data"]][:1]
+    names = [f"{place['name']} in {city}" for place in coords["data"]]
 
-    import requests
-    import googlemaps
+    # import requests
+    # import googlemaps
+    #
+    # maps_api = googlemaps.Client(key=api_key)
+    #
+    # response_dict = {"data" :[]}
+    # for name in names:
+    #     place_search = maps_api.find_place(
+    #                 {name},
+    #                 "textquery",
+    #                 fields=["place_id"],
+    #                 language='en-US',
+    #             )
+    #
+    #     print(place_search)
+    #     place_id = place_search['candidates'][0]['place_id']
+    #     print(place_id)
+    #     url = f"https://maps.googleapis.com/maps/api/place/details/json?place_id={place_id}&fields=name&key={api_key}"
+    #
+    #     payload={}
+    #     headers = {}
+    #     response = requests.request("GET", url, headers=headers, data=payload)
+    #
+    #     place_details = response.text
+    #     place_dict = json.loads(place_details)["result"]
+    #     response_dict["data"].append(place_dict)
+    #     response_json = json.dumps(response_dict)
+    #     print(place_dict)
 
-    maps_api = googlemaps.Client(key=api_key)
-
-    response_dict = {"data" :[]}
-    for name in names:
-        place_search = maps_api.find_place(
-                    {name},
-                    "textquery",
-                    fields=["place_id"],
-                    language='en-US',
-                )
-        
-        print(place_search)
-        place_id = place_search['candidates'][0]['place_id']
-        print(place_id)
-        url = f"https://maps.googleapis.com/maps/api/place/details/json?place_id={place_id}&fields=name&key={api_key}"
-        
-        payload={}
-        headers = {}
-        response = requests.request("GET", url, headers=headers, data=payload)
-
-        place_details = response.text
-        place_dict = json.loads(place_details)["result"]
-        response_dict["data"].append(place_dict)
-        response_json = json.dumps(response_dict)
-        print(place_dict)
-
-    return {"response": response_json}
+    return {"response": names}
 
